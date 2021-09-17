@@ -1,0 +1,165 @@
+From 7a6f54ee17c052c631df61235f49b5aadaf1c264 Mon Sep 17 00:00:00 2001
+From: delsananthony <delsan.anthony.das@gmail.com>
+Date: Fri, 17 Sep 2021 12:51:29 +0800
+Subject: [PATCH] Create Patch File v1.1
+
+---
+ 0001-Create-Patch-File.patch | 100 +++++++++++++++++++++++++++++++++++
+ client_test.py               |  19 ++++++-
+ 2 files changed, 117 insertions(+), 2 deletions(-)
+ create mode 100644 0001-Create-Patch-File.patch
+
+diff --git a/0001-Create-Patch-File.patch b/0001-Create-Patch-File.patch
+new file mode 100644
+index 0000000..9b9abd9
+--- /dev/null
++++ b/0001-Create-Patch-File.patch
+@@ -0,0 +1,100 @@
++From 41361442bfdd67debdc26f574a31edd956644dba Mon Sep 17 00:00:00 2001
++From: delsananthony <delsan.anthony.das@gmail.com>
++Date: Fri, 17 Sep 2021 12:08:06 +0800
++Subject: [PATCH] Create Patch File
++
++---
++ client3.py        |  6 ++++--
++ venv/Pipfile      | 12 ++++++++++++
++ venv/Pipfile.lock | 37 +++++++++++++++++++++++++++++++++++++
++ 3 files changed, 53 insertions(+), 2 deletions(-)
++ create mode 100644 venv/Pipfile
++ create mode 100644 venv/Pipfile.lock
++
++diff --git a/client3.py b/client3.py
++index f1771c3..33be63e 100644
++--- a/client3.py
+++++ b/client3.py
++@@ -35,14 +35,16 @@ def getDataPoint(quote):
++ 	stock = quote['stock']
++ 	bid_price = float(quote['top_bid']['price'])
++ 	ask_price = float(quote['top_ask']['price'])
++-	price = bid_price
+++	price = (bid_price + ask_price) / 2
++ 	return stock, bid_price, ask_price, price
++ 
++ def getRatio(price_a, price_b):
++ 	""" Get ratio of price_a and price_b """
++ 	""" ------------- Update this function ------------- """
++ 	""" Also create some unit tests for this function in client_test.py """
++-	return 1
+++	if price_b == 0:
+++		return
+++	return price_a/price_b
++ 
++ # Main
++ if __name__ == "__main__":
++diff --git a/venv/Pipfile b/venv/Pipfile
++new file mode 100644
++index 0000000..0921834
++--- /dev/null
+++++ b/venv/Pipfile
++@@ -0,0 +1,12 @@
+++[[source]]
+++url = "https://pypi.org/simple"
+++verify_ssl = true
+++name = "pypi"
+++
+++[packages]
+++python-dateutil = "*"
+++
+++[dev-packages]
+++
+++[requires]
+++python_version = "3.8"
++diff --git a/venv/Pipfile.lock b/venv/Pipfile.lock
++new file mode 100644
++index 0000000..2be3492
++--- /dev/null
+++++ b/venv/Pipfile.lock
++@@ -0,0 +1,37 @@
+++{
+++    "_meta": {
+++        "hash": {
+++            "sha256": "979a99d7a02e08635edb4b4691b68e1ad1976f9345a03041f826fee9f37081d8"
+++        },
+++        "pipfile-spec": 6,
+++        "requires": {
+++            "python_version": "3.8"
+++        },
+++        "sources": [
+++            {
+++                "name": "pypi",
+++                "url": "https://pypi.org/simple",
+++                "verify_ssl": true
+++            }
+++        ]
+++    },
+++    "default": {
+++        "python-dateutil": {
+++            "hashes": [
+++                "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86",
+++                "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"
+++            ],
+++            "index": "pypi",
+++            "version": "==2.8.2"
+++        },
+++        "six": {
+++            "hashes": [
+++                "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926",
+++                "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
+++            ],
+++            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
+++            "version": "==1.16.0"
+++        }
+++    },
+++    "develop": {}
+++}
++-- 
++2.33.0.windows.2
++
+diff --git a/client_test.py b/client_test.py
+index af2bf26..e7e0e8f 100644
+--- a/client_test.py
++++ b/client_test.py
+@@ -1,5 +1,5 @@
+ import unittest
+-from client3 import getDataPoint
++from client3 import getDataPoint, getRatio
+ 
+ class ClientTest(unittest.TestCase):
+   def test_getDataPoint_calculatePrice(self):
+@@ -8,6 +8,9 @@ class ClientTest(unittest.TestCase):
+       {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
+     ]
+     """ ------------ Add the assertion below ------------ """
++    for quote in quotes:
++      self.assertEqual(getDataPoint(quote), 
++      (quote['stock'], quote['top_bid']['price'], quote['top_ask']['price'], (quote['top_bid']['price'] + quote['top_ask']['price'])/2))
+ 
+   def test_getDataPoint_calculatePriceBidGreaterThanAsk(self):
+     quotes = [
+@@ -15,10 +18,22 @@ class ClientTest(unittest.TestCase):
+       {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
+     ]
+     """ ------------ Add the assertion below ------------ """
+-
++    for quote in quotes:
++      self.assertEqual(getDataPoint(quote), 
++      (quote['stock'], quote['top_bid']['price'], quote['top_ask']['price'], (quote['top_bid']['price'] + quote['top_ask']['price'])/2))
+ 
+   """ ------------ Add more unit tests ------------ """
+ 
++  def test_getRatio_calculated_ratio(self):
++    quotes = [
++      {'top_ask': {'price': 121.2, 'size': 36}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 120.48, 'size': 109}, 'id': '0.109974697771', 'stock': 'ABC'},
++      {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
++    ]
++    for quote in quotes:
++      #print(quote['price'])
++      self.assertEqual(getRatio((quote['top_bid']['price'] + quote['top_ask']['price']), (quote['top_bid']['price'] + quote['top_ask']['price'])), 
++      ((quote['top_bid']['price'] + quote['top_ask']['price'])/(quote['top_bid']['price'] + quote['top_ask']['price'])))
++
+ 
+ 
+ if __name__ == '__main__':
+-- 
+2.33.0.windows.2
+
